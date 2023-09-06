@@ -1,9 +1,13 @@
 import SwiftUI
 
+struct Fact: Identifiable {
+    let value: String
+    var id: String { value }
+}
+
 struct CounterView: View {
 	@State var count: Int = 0
-	@State var fact: String?
-	@State var showFact: Bool = false
+	@State var fact: Fact?
 
 	var body: some View {
 		NavigationStack {
@@ -36,15 +40,9 @@ struct CounterView: View {
 				.buttonStyle(.borderedProminent)
 			}
 			.navigationTitle("Counter")
-			.alert(
-				"Number Fact",
-				isPresented: $showFact,
-				actions: {}
-			) {
-				if let fact {
-					Text(fact)
-				}
-			}
+            .alert(item: $fact) { fact in
+                Alert(title: Text(fact.value))
+            }
 		}
 	}
 
@@ -54,11 +52,9 @@ struct CounterView: View {
 
 			let result = try await URLSession.shared.data(from: url)
 
-			self.fact = String(data: result.0, encoding: .utf8)!
-			self.showFact = true
+			self.fact = Fact(value: String(data: result.0, encoding: .utf8)!)
 		} catch {
-			self.fact = error.localizedDescription
-			self.showFact = true
+            self.fact = Fact(value: error.localizedDescription)
 		}
 	}
 }
